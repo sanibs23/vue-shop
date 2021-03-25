@@ -5,10 +5,12 @@ export default createStore({
   state: {
     products: [],
     carts: [],
+    totalCount: 0,
   },
   mutations: {
-    SET_PRODUCTS(state, payload) {
-      state.products = payload;
+    SET_PRODUCTS(state, { items, totalCount }) {
+      state.products = [...state.products, ...items];
+      state.totalCount = totalCount;
     },
     ADD_CART(state, payload) {
       const updatedProduct = state.products.map((item) => {
@@ -21,12 +23,23 @@ export default createStore({
       state.products = updatedProduct;
       state.carts.push(payload);
     },
+    UPDATE_CART(state, { cartIndex, quantity }) {
+      console.log(quantity);
+      state.carts[cartIndex].quantity = quantity;
+    },
+    REMOVE_CART(state, cartId) {
+      const filterdCart = state.carts.filter((itm) => itm.id !== cartId);
+      state.carts = filterdCart;
+    },
   },
   actions: {
     async getProducts({ commit }, { perPage, page }) {
       try {
         const response = await ProductService.getProducts(perPage, page);
-        commit("SET_PRODUCTS", response.data);
+        commit("SET_PRODUCTS", {
+          items: response.data,
+          totalCount: response.headers["x-total-count"],
+        });
       } catch (error) {
         console.log(error);
       }

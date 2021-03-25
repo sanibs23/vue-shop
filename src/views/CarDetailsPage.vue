@@ -13,49 +13,35 @@
           <label class="product-line-price">Total</label>
         </div>
 
-        <div class="product" v-for="cart in carts" :key="cart.id">
+        <div class="product" v-for="(cart, cartIndex) in carts" :key="cart.id">
           <div class="product-image">
             <img :src="cart.image" :alt="cart.title" />
           </div>
           <div class="product-details">
-            <div class="product-title">{{ cart.title }}</div>
+            <h1 class="product-title">{{ cart.title }}</h1>
             <p class="product-description">
               {{ cart.description }}
             </p>
           </div>
           <div class="product-price">{{ cart.price }}</div>
           <div class="product-quantity">
-            <input type="number" :value="cart.quantity" min="1" />
-          </div>
-          <div class="product-removal">
-            <button class="remove-product">Remove</button>
-          </div>
-          <div class="product-line-price">{{ cart.price * cart.quantity }}</div>
-        </div>
-
-        <!-- <div class="product">
-          <div class="product-image">
-            <img
-              src="https://s.cdpn.io/3/large-NutroNaturalChoiceAdultLambMealandRiceDryDogFood.png"
+            <input
+              class="w-50"
+              type="number"
+              @change="updateCart($event, cartIndex)"
+              :value="cart.quantity"
+              min="1"
             />
           </div>
-          <div class="product-details">
-            <div class="product-title">Nutro™ Adult Lamb and Rice Dog Food</div>
-            <p class="product-description">
-              Who doesn't like lamb and rice? We've all hit the halal cart at
-              3am while quasi-blackout after a night of binge drinking in
-              Manhattan. Now it's your dog's turn!
-            </p>
-          </div>
-          <div class="product-price">45.99</div>
-          <div class="product-quantity">
-            <input type="number" value="1" min="1" />
-          </div>
           <div class="product-removal">
-            <button class="remove-product">Remove</button>
+            <button class="remove-product" @click="REMOVE_CART(cart.id)">
+              Remove
+            </button>
           </div>
-          <div class="product-line-price">45.99</div>
-        </div> -->
+          <div class="product-line-price">
+            {{ (cart.price * cart.quantity).toFixed(2) }}
+          </div>
+        </div>
 
         <div class="totals">
           <div class="totals-item">
@@ -75,7 +61,9 @@
             <div class="totals-value" id="cart-shipping">15.00</div>
           </div>
           <div class="totals-item totals-item-total">
-            <label>Grand Total</label>
+            <label
+              >Grand Total <small class="text-muted">(Rounded)</small></label
+            >
             <div class="totals-value" id="cart-total">
               {{
                 Math.floor(getTotalCartPrice + 0.05 * getTotalCartPrice) + 15
@@ -84,14 +72,13 @@
           </div>
         </div>
 
-        <button class="checkout">Checkout</button>
+        <button class="checkout">Make Order</button>
       </div>
     </div>
     <div v-else>
       <div>
         <h6 className="mt-2 text-center">
-          Your cart is now empty <span role="img">😒</span
-          ><small className="pointer text-info"
+          Your cart is now empty ><small className="pointer text-info"
             ><router-link to="/">Shopping?</router-link></small
           >
         </h6>
@@ -106,8 +93,17 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 export default {
+  methods: {
+    ...mapMutations(["REMOVE_CART", "UPDATE_CART"]),
+    updateCart(event, cartIndex) {
+      this.UPDATE_CART({
+        quantity: event.target.value,
+        cartIndex,
+      });
+    },
+  },
   computed: {
     ...mapState(["carts"]),
     ...mapGetters(["getTotalCartPrice", "getCartsLength"]),
@@ -123,14 +119,15 @@ export default {
   font-size: 20px;
   font-weight: bold;
 }
-.empty-cart-img{
+.empty-cart-img {
   width: 400px;
-  height:65vh;
+  height: 65vh;
 }
 
 .product-image {
   float: left;
   width: 20%;
+  object-fit: cover;
 }
 
 .product-details {
@@ -224,11 +221,12 @@ export default {
 
 .product .product-image img {
   width: 100px;
+  height: 120px;
 }
 
 .product .product-details .product-title {
   margin-right: 20px;
-  font-family: "HelveticaNeue-Medium", "Helvetica Neue Medium";
+  font-size: 18px;
 }
 
 .product .product-details .product-description {
@@ -286,8 +284,9 @@ export default {
   padding: 6px 25px;
   background-color: #6b6;
   color: #fff;
-  font-size: 25px;
+  font-size: 20px;
   border-radius: 3px;
+  outline: none;
 }
 
 .checkout:hover {

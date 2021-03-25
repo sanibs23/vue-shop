@@ -31,6 +31,7 @@ export default {
 <style scoped>
 .product-card {
   min-width: 220px;
+  max-width:280px;
 }
 .product-card img {
   width: 100%;

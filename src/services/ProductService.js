@@ -6,7 +6,7 @@ const apiClient = axios.create({
 });
 
 export default {
-  getProducts(perPage = 20, page = 1) {
+  getProducts(perPage=20, page = 1) {
     return apiClient.get("/products?_limit=" + perPage + "&_page=" + page);
   },
   //   getEvent(id) {
